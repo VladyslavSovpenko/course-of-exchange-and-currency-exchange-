@@ -142,21 +142,6 @@ public class Profiles implements Serializable {
      * сохраняет текущий экземпляр Profiles в сериализованный файл по определенному расписанию (каждые 5 минут)
      */
     public void SchedulerSaveToFile() {
-        Timer timer = new Timer(true);
-        timer.schedule(new TimerTask() {
-            @Override
-            @SneakyThrows
-            public void run() {
-                if (System.getenv().get("botName") == null) {
-                    try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/main/resources/profiles.dat"))) {
-                        objectOutputStream.writeObject(instance);
-                    }
-                } else {
-                    SaveToAwsAmazon();
-                }
-            }
-        }, 1000L, 5L * 60L * 1000L);
-
     }
 
     public void setProfileSettings(String chatId, ProfileSettings profileSettings) {

@@ -12,6 +12,8 @@ public class ProfileSettings implements Serializable {
     private Set<BankEnum> banks; //список банков
     private Set<CurrencyEnum> currencies; // список валют
     private int hourNotification; //установленный час оповещения
+    private BankEnum original;
+    private BankEnum target;
 
     public ProfileSettings() {
         banks = new HashSet<>();
@@ -87,6 +89,19 @@ public class ProfileSettings implements Serializable {
      */
     public synchronized ProfileSettings setHourNotification(int hourNotification) {
         this.hourNotification = hourNotification;
+        return this;
+    }
+
+    /**
+     * устанавливает с чего во что конвертировать
+     */
+    public synchronized ProfileSettings setOriginal(BankEnum bankEnum){
+        this.original = bankEnum;
+        return this;
+    }
+
+    public synchronized ProfileSettings setTarget(BankEnum bankEnum){
+        this.target = bankEnum;
         return this;
     }
 

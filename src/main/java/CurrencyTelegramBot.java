@@ -48,7 +48,7 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
          */
         if (botNameLoc == null || botTokenLoc == null) {
             try (BufferedReader bufferedReader = new BufferedReader(
-                    new FileReader("src/main/resources/botCredentials.ctxt"))) {
+                    new FileReader("src/main/botCredentials.ctxt"))) {
                 String[] botCredentials = bufferedReader.readLine().split(" ");
                 botNameLoc = botCredentials[0];
                 botTokenLoc = botCredentials[1];
@@ -91,7 +91,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
 
     private void messageHandler(Message message) {
         if (message.hasText()) {
-
             String chatUserId = message.getChatId().toString();
             if (message.getText().equals("/start")) {
                 try {
@@ -99,6 +98,10 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                     buttons.add(Arrays.asList(InlineKeyboardButton.builder()
                             .callbackData("Get")
                             .text("Получить инфо")
+                            .build()));
+                    buttons.add(List.of(InlineKeyboardButton.builder()
+                            .text("Конвертер валют")
+                            .callbackData("Converter"+"start")
                             .build()));
                     buttons.add(Arrays.asList(InlineKeyboardButton.builder()
                             .text("Настройки")
@@ -500,6 +503,8 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                     e.printStackTrace();
 
                 }
+            case "Converter":
+
         }
     }
 
