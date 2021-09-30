@@ -4,6 +4,7 @@ import facade.CashApiRequests;
 import notifier.NotifTimer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -101,7 +102,7 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                             .build()));
                     buttons.add(List.of(InlineKeyboardButton.builder()
                             .text("Конвертер валют")
-                            .callbackData("Converter"+"start")
+                            .callbackData("Converter:" + "start")
                             .build()));
                     buttons.add(Arrays.asList(InlineKeyboardButton.builder()
                             .text("Настройки")
@@ -504,7 +505,47 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
 
                 }
             case "Converter":
+                String parametrConv = param[1];
+                List<List<InlineKeyboardButton>> buttonConv = new ArrayList<>();
 
+
+
+                switch (parametrConv) {
+                    case "start":
+                        break;
+                }
+                if (param[1].equals("original")) {
+                    CurrencyEnum newCurrency = CurrencyEnum.valueOf(param[2]);
+                    profiles.getProfileSettings(chatUserId).setOriginalCurrency(newCurrency);
+                } else if (param[1].equals("target")) {
+                    CurrencyEnum newCurrency = CurrencyEnum.valueOf(param[2]);
+                    profiles.getProfileSettings(chatUserId).setTargetCurrency(newCurrency);
+                }
+                CurrencyEnum originalCurrency = profiles.getProfileSettings(chatUserId).getOriginalCurrency();
+                CurrencyEnum targetCurrency = profiles.getProfileSettings(chatUserId).getTargetCurrency();
+                for (CurrencyEnum currencyEnum : CurrencyEnum.values()) {
+                    buttonConv.add(
+                            Arrays.asList(
+                                    InlineKeyboardButton.builder()
+                                            .text(getCurrencyButton(originalCurrency, currencyEnum))
+                                            .callbackData("Converter:" + "original:" + currencyEnum)
+                                            .build(),
+                                    InlineKeyboardButton.builder()
+                                            .text(getCurrencyButton(targetCurrency, currencyEnum))
+                                            .callbackData("Converter:" + "target:" + currencyEnum)
+                                            .build()));
+                }
+
+                try {
+                    execute(
+                            EditMessageReplyMarkup.builder()
+                                    .messageId(messageUserId)
+                                    .chatId(chatUserId)
+                                    .replyMarkup(InlineKeyboardMarkup.builder().keyboard(buttonConv).build())
+                                    .build());
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
         }
     }
 
@@ -512,6 +553,10 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
     private String getAfterComaButton(int current, String chatId) {
         return profiles.getProfileSettings(chatId).getAfterComma() == current ? "✅ " + current
                 : current + "";
+    }
+
+    private String getCurrencyButton(CurrencyEnum saved, CurrencyEnum current) {
+        return saved == current ? current + " ✅" : current.name();
     }
 
     private String getBankEnumButton(String current, String chatId) {

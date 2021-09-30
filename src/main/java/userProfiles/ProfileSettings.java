@@ -12,8 +12,8 @@ public class ProfileSettings implements Serializable {
     private Set<BankEnum> banks; //список банков
     private Set<CurrencyEnum> currencies; // список валют
     private int hourNotification; //установленный час оповещения
-    private BankEnum original;
-    private BankEnum target;
+    private CurrencyEnum originalCurrency = CurrencyEnum.USD;
+    private CurrencyEnum targetCurrency;
 
     public ProfileSettings() {
         banks = new HashSet<>();
@@ -21,7 +21,8 @@ public class ProfileSettings implements Serializable {
         this.setAfterComma(2)
                 .addBank(BankEnum.PRIVATBANK)
                 .addCurrency(CurrencyEnum.USD)
-                .setHourNotification(9);
+                .setHourNotification(9)
+                .setTargetCurrency(CurrencyEnum.UAH);
     }
 
     /**
@@ -92,18 +93,26 @@ public class ProfileSettings implements Serializable {
         return this;
     }
 
+    public CurrencyEnum getOriginalCurrency() {
+        return originalCurrency;
+    }
+
+    public void setOriginalCurrency(CurrencyEnum originalCurrency) {
+        this.originalCurrency = originalCurrency;
+    }
+
+    public CurrencyEnum getTargetCurrency() {
+        return targetCurrency;
+    }
+
+    public void setTargetCurrency(CurrencyEnum targetCurrency) {
+        this.targetCurrency = targetCurrency;
+    }
+
     /**
      * устанавливает с чего во что конвертировать
      */
-    public synchronized ProfileSettings setOriginal(BankEnum bankEnum){
-        this.original = bankEnum;
-        return this;
-    }
 
-    public synchronized ProfileSettings setTarget(BankEnum bankEnum){
-        this.target = bankEnum;
-        return this;
-    }
 
     public synchronized int getAfterComma() {
         return afterComma;
@@ -124,10 +133,10 @@ public class ProfileSettings implements Serializable {
     @Override
     public String toString() {
         return "ProfileSettings{" +
-            "afterComma=" + afterComma +
-            ", banks=" + banks +
-            ", currencies=" + currencies +
-            ", hourNotification=" + hourNotification +
-            '}'+hashCode();
+                "afterComma=" + afterComma +
+                ", banks=" + banks +
+                ", currencies=" + currencies +
+                ", hourNotification=" + hourNotification +
+                '}' + hashCode();
     }
 }
