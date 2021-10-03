@@ -97,10 +97,10 @@ public class CashApiRequests {
                         .append(CurrencyEnum.UAH.getValue())
                         .append("\n")
                         .append(" Покупка: ")
-                        .append(String.format(patternRounding, bankResponse.getRate(currency).getRateSale()))
+                        .append(String.format(patternRounding, bankResponse.getRate(currency).getRatePurchase()))
                         .append("\n")
                         .append(" Продажа: ")
-                        .append(String.format(patternRounding, bankResponse.getRate(currency).getRatePurchase()))
+                        .append(String.format(patternRounding, bankResponse.getRate(currency).getRateSale()))
                         .append("\n\n");
             }
 

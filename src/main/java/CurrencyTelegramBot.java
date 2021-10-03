@@ -1,6 +1,7 @@
 import bankApi.BankEnum;
 import bankApi.CurrencyEnum;
 import facade.CashApiRequests;
+import facade.CurrencyRate;
 import notifier.NotifTimer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -23,10 +24,9 @@ import userProfiles.Profiles;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static java.lang.Double.parseDouble;
 
 public class CurrencyTelegramBot extends TelegramLongPollingBot {
 
@@ -147,6 +147,24 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                     e.printStackTrace();
 
                 }
+            } else if (message.hasText()) {
+                String messageText = message.getText();
+                Optional<Double> value = Optional.of(parseDouble(messageText));
+                CurrencyEnum originalCurrency = profiles.getProfileSettings(chatUserId).getOriginalCurrency();
+                CurrencyEnum targetCurrency = profiles.getProfileSettings(chatUserId).getTargetCurrency();
+                double ratio = getConverse(originalCurrency, targetCurrency, chatUserId);
+                if (value.isPresent()) {
+                    try {
+                        execute(
+                                SendMessage.builder()
+                                        .chatId(chatUserId)
+                                        .text(String.format("%4.2f %s is %4.2f %s", value.get(), originalCurrency, (value.get() * ratio), targetCurrency))
+                                        .build()
+                        );
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
@@ -210,6 +228,10 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                             List.of(InlineKeyboardButton.builder()
                                     .text("Получить инфо")
                                     .callbackData("Get")
+                                    .build()),
+                            List.of(InlineKeyboardButton.builder()
+                                    .text("Конвертер валют")
+                                    .callbackData("Converter:" + "start")
                                     .build()),
                             List.of(InlineKeyboardButton.builder()
                                     .text("Настройки")
@@ -490,6 +512,10 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                             .callbackData("Get")
                             .text("Получить инфо")
                             .build()));
+                    buttons1.add(List.of(InlineKeyboardButton.builder()
+                            .text("Конвертер валют")
+                            .callbackData("Converter:" + "start")
+                            .build()));
                     buttons1.add(Arrays.asList(InlineKeyboardButton.builder()
                             .text("Настройки")
                             .callbackData("Settings")
@@ -509,7 +535,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                 List<List<InlineKeyboardButton>> buttonConv = new ArrayList<>();
 
 
-
                 switch (parametrConv) {
                     case "start":
                         break;
@@ -524,6 +549,8 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                 CurrencyEnum originalCurrency = profiles.getProfileSettings(chatUserId).getOriginalCurrency();
                 CurrencyEnum targetCurrency = profiles.getProfileSettings(chatUserId).getTargetCurrency();
                 for (CurrencyEnum currencyEnum : CurrencyEnum.values()) {
+                    if (currencyEnum == CurrencyEnum.RUB || currencyEnum == CurrencyEnum.EURUSD) {
+                    } else{
                     buttonConv.add(
                             Arrays.asList(
                                     InlineKeyboardButton.builder()
@@ -534,7 +561,11 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                                             .text(getCurrencyButton(targetCurrency, currencyEnum))
                                             .callbackData("Converter:" + "target:" + currencyEnum)
                                             .build()));
-                }
+                }}
+                buttonConv.add(Arrays.asList(InlineKeyboardButton.builder()
+                        .text("Назад")
+                        .callbackData("Start")
+                        .build()));
 
                 try {
                     execute(
@@ -610,4 +641,55 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(telegaBot);
     }
+
+    public double getConverse(CurrencyEnum from, CurrencyEnum to, String chatUserID) {
+        CurrencyRate bankResponse = CashApiRequests.getInstance().getBankResponse(BankEnum.MONOBANK);
+        double ratio = 0.0;
+        switch (from) {
+            case UAH: {
+                switch (to) {
+                    case USD:
+                        ratio = 1 / bankResponse.getRate(CurrencyEnum.USD).getRateSale();
+                        break;
+                    case EUR:
+                        ratio = 1 / bankResponse.getRate(CurrencyEnum.EUR).getRateSale();
+                        break;
+                    case UAH:
+                        ratio = 1;
+                        break;
+                }
+                break;
+            }
+            case USD: {
+                switch (to) {
+                    case UAH:
+                        ratio = bankResponse.getRate(CurrencyEnum.USD).getRatePurchase();
+                        break;
+                    case EUR:
+                        ratio = 1 / bankResponse.getRate(CurrencyEnum.EURUSD).getRateSale();
+                        break;
+                    case USD:
+                        ratio = 1;
+                        break;
+                }
+                break;
+            }
+            case EUR: {
+                switch (to) {
+                    case UAH:
+                        ratio = bankResponse.getRate(CurrencyEnum.EUR).getRatePurchase();
+                        break;
+                    case USD:
+                        ratio = bankResponse.getRate(CurrencyEnum.EURUSD).getRateSale();
+                        break;
+                    case EUR:
+                        ratio = 1;
+                        break;
+                }
+                break;
+            }
+        }
+        return ratio;
+    }
 }
+
