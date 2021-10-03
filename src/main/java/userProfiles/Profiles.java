@@ -53,7 +53,7 @@ public class Profiles implements Serializable {
      */
     public static Profiles getInstance() {
         if (instance == null) {
-            if (System.getenv().get("botName") == null) {
+            if (System.getenv().get("AWS_ACCESS_KEY_ID") == null) {
                 try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("src/main/resources/profiles.dat"))) {
                     instance = (Profiles) objectInputStream.readObject();
                 } catch (Exception e) {
@@ -142,6 +142,21 @@ public class Profiles implements Serializable {
      * сохраняет текущий экземпляр Profiles в сериализованный файл по определенному расписанию (каждые 5 минут)
      */
     public void SchedulerSaveToFile() {
+        Timer timer = new Timer(true);
+        timer.schedule(new TimerTask() {
+            @Override
+            @SneakyThrows
+            public void run() {
+                if (System.getenv().get("AWS_ACCESS_KEY_ID") == null) {
+                    try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/main/resources/profiles.dat"))) {
+                        objectOutputStream.writeObject(instance);
+                    }
+                } else {
+                    SaveToAwsAmazon();
+                }
+            }
+        }, 1000L, 5L * 60L * 1000L);
+
     }
 
     public void setProfileSettings(String chatId, ProfileSettings profileSettings) {
