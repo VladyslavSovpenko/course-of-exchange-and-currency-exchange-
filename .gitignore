@@ -31,7 +31,6 @@ out/
 
 src/main/resources/
 target/
-
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
