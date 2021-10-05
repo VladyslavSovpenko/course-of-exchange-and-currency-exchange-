@@ -181,14 +181,18 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                     .text("Кол-во знаков после запятой")
                     .callbackData("Number:" + profiles.getProfileSettings(chatUserId).getAfterComma())
                     .build())));
-            buttons.add(Collections.singletonList((InlineKeyboardButton.builder()
+            buttons.add(Collections.singletonList(InlineKeyboardButton.builder()
                     .text("Банк")
                     .callbackData("Bank_enum:" + "start_page")
-                    .build())));
-            buttons.add(Collections.singletonList((InlineKeyboardButton.builder()
+                    .build()));
+            buttons.add(Collections.singletonList(InlineKeyboardButton.builder()
                     .text("Валюты")
                     .callbackData("currencies:" + "start_page")
-                    .build())));
+                    .build()));
+            buttons.add(Arrays.asList(InlineKeyboardButton.builder()
+                    .text("Е-Валюты")
+                    .callbackData("ecurrency:" + "start_page")
+                    .build()));
             buttons.add(Arrays.asList(InlineKeyboardButton.builder()
                     .text("Время оповещений")
                     .callbackData("Time_of_notification")
@@ -577,6 +581,16 @@ public class CurrencyTelegramBot extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+            case "ecurrency":
+                String parametrECurrencies = param[1];
+                switch (parametrECurrencies){
+                    case "start_page":
+                }
+
+
+
+
+
         }
     }
 
