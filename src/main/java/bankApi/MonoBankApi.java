@@ -31,7 +31,8 @@ public class MonoBankApi {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
 
-        List<MonoBankCurrency> currencies = gson.fromJson(response.body(), new TypeToken<List<MonoBankCurrency>>() {
+        List<MonoBankCurrency> currencies = gson.fromJson(response.body(),
+                new TypeToken<List<MonoBankCurrency>>() {
         }.getType());
 
 
@@ -40,7 +41,8 @@ public class MonoBankApi {
             for (CurrencyEnum currencyEnum : CurrencyEnum.values()) {
                 if (monoBankCurrency.getCurrencyCodeA() == currencyEnum.isoCode
                         && monoBankCurrency.getCurrencyCodeB() == 980) {
-                    currencyRate.setRate(currencyEnum, new CurrencyRate.Rate(monoBankCurrency.getRateSell(), monoBankCurrency.getRateBuy()));
+                    currencyRate.setRate(currencyEnum,
+                            new CurrencyRate.Rate(monoBankCurrency.getRateSell(), monoBankCurrency.getRateBuy()));
                 }
                 if (monoBankCurrency.getCurrencyCodeA() == 978 && monoBankCurrency.getCurrencyCodeB() == 840){
                     currencyRate.setRate(CurrencyEnum.EURUSD, new CurrencyRate.Rate(monoBankCurrency.getRateSell(), monoBankCurrency.getRateBuy()));
